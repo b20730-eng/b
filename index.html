@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>슬기로운 이화 생활</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .page { display: none; }
+        .page.active { display: block; }
+        /* 이화여고 커스텀 그린 컬러 정의 */
+        .bg-ewha-green { background-color: #004b23; }
+        .text-ewha-green { color: #004b23; }
+        .border-ewha-green { border-color: #004b23; }
+    </style>
+</head>
+<body class="bg-stone-50 text-gray-800 min-h-screen flex flex-col items-center justify-center p-4 select-none">
+
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 min-h-[640px] flex flex-col justify-between border border-gray-100 relative overflow-hidden">
+        
+        <div class="absolute top-0 left-0 w-full h-2 bg-ewha-green"></div>
+
+        <div id="page-login" class="page active flex flex-col justify-between h-full flex-grow pt-6">
+            <div class="text-center my-auto py-6">
+                <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-100">
+                    <span class="text-4xl">🌸</span>
+                </div>
+                <h1 class="text-3xl font-black text-ewha-green tracking-tight mb-2">슬기로운 이화 생활</h1>
+                <p class="text-gray-400 text-xs font-medium mb-10 tracking-wide">이화여자고등학교 맞춤형 식단·운동 가이드</p>
+                
+                <div class="space-y-3 mb-8">
+                    <input type="text" id="login-id" placeholder="학번 (예: 10101)" class="w-full p-3.5 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-700 text-sm bg-gray-50/50">
+                    <input type="password" placeholder="비밀번호" class="w-full p-3.5 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-700 text-sm bg-gray-50/50">
+                    <button onclick="handleLogin(true)" class="w-full bg-ewha-green text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition shadow-md shadow-emerald-900/10">이화인 로그인</button>
+                </div>
+                
+                <div class="border-t border-gray-100 pt-5">
+                    <button onclick="handleLogin(false)" class="text-xs text-gray-400 hover:text-ewha-green transition underline underline-offset-4">
+                        ⚠️ 비로그인으로 시작하기 (정보가 저장되지 않습니다)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-main-menu" class="page flex flex-col justify-between h-full flex-grow pt-4">
+            <div>
+                <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                    <h2 class="text-base font-bold text-gray-800">반가워요, 오늘의 기록을 시작할까요?</h2>
+                    <span id="user-status" class="text-[11px] font-bold bg-emerald-50 text-ewha-green px-2.5 py-1 rounded-full border border-emerald-100"></span>
+                </div>
+                <div class="grid grid-cols-1 gap-4 mt-6">
+                    <button onclick="goToMealFlow()" class="p-5 border border-gray-100 rounded-2xl text-left bg-white shadow-sm hover:border-emerald-600 transition block w-full group relative overflow-hidden">
+                        <div class="absolute right-4 top-4 text-3xl opacity-20 group-hover:opacity-100 transition">🍱</div>
+                        <span class="text-2xl">🍱</span>
+                        <h3 class="text-base font-bold text-ewha-green mt-2">오늘의 급식 분석 및 추천</h3>
+                        <p class="text-xs text-gray-400 mt-1 leading-relaxed">식전 급식 사진을 찍어 맞춤 가이드를 받고,<br>식후 잔반 인증을 통해 피드백을 기록합니다.</p>
+                    </button>
+                    
+                    <button onclick="goToExerciseFlow()" class="p-5 border border-gray-100 rounded-2xl text-left bg-white shadow-sm hover:border-emerald-600 transition block w-full group relative overflow-hidden">
+                        <div class="absolute right-4 top-4 text-3xl opacity-20 group-hover:opacity-100 transition">🏋️</div>
+                        <span class="text-2xl">🏋️</span>
+                        <h3 class="text-base font-bold text-ewha-green mt-2">교내 체육관 운동 추천</h3>
+                        <p class="text-xs text-gray-400 mt-1 leading-relaxed">이화여고 체력단련실에 구비된 5대 기구를 활용해<br>나의 목표와 식단에 맞는 루틴을 확인합니다.</p>
+                    </button>
+                    
+                    <button id="btn-my-storage" onclick="viewStorage()" class="hidden p-4 border border-dashed border-gray-200 rounded-2xl text-left bg-gray-50/50 hover:bg-gray-50 transition w-full flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg">🌸</span>
+                            <span class="font-bold text-xs text-gray-600">나의 이화 급식 저장소</span>
+                        </div>
+                        <span class="text-xs text-gray-400">이력 보기 &gt;</span>
+                    </button>
+                </div>
+            </div>
+            <button onclick="navigate('page-login')" class="w-full mt-6 text-xs text-gray-400 text-center hover:underline">로그아웃/처음으로</button>
+        </div>
+
+        <div id="page-goal" class="page flex flex-col justify-between h-full flex-grow pt-2">
+            <div>
+                <h2 class="text-lg font-bold text-ewha-green mb-1">🎯 나의 목표 설정</h2>
+                <p class="text-xs text-gray-400 mb-6">다이어트 및 건강 관리 목표를 선택해 주세요.</p>
+                
+                <div class="space-y-2.5">
+                    <label class="flex items-center p-3.5 border border-gray-100 rounded-xl cursor-pointer hover:bg-emerald-50/30 transition">
+                        <input type="radio" name="goal" value="체중 감량" checked class="mr-3 accent-emerald-800">
+                        <span class="text-xs font-medium text-gray-700">📉 체중 감량 (체지방 위주 다이어트)</span>
+                    </label>
+                    <label class="flex items-center p-3.5 border border-gray-100 rounded-xl cursor-pointer hover:bg-emerald-50/30 transition">
+                        <input type="radio" name="goal" value="근력 증량" class="mr-3 accent-emerald-800">
+                        <span class="text-xs font-medium text-gray-700">💪 체력 및 근력 증량 (탄탄한 밸런스)</span>
+                    </label>
+                    <label class="flex items-center p-3.5 border border-gray-100 rounded-xl cursor-pointer hover:bg-emerald-50/30 transition">
+                        <input type="radio" name="goal" value="건강한 식습관 개선" class="mr-3 accent-emerald-800">
+                        <span class="text-xs font-medium text-gray-700">🥗 잔반 제로 & 영양 균형 유지</span>
+                    </label>
+                    <div class="p-3.5 border border-gray-100 rounded-xl bg-gray-50/50">
+                        <label class="flex items-center cursor-pointer mb-2">
+                            <input type="radio" name="goal" value="기타" id="goal-etc" class="mr-3 accent-emerald-800">
+                            <span class="text-xs font-bold text-gray-600">✍️ 기타 목표 직접 작성</span>
+                        </label>
+                        <input type="text" id="goal-custom" placeholder="예: 매점 간식 줄이기, 하체 근력 키우기" class="w-full p-2 bg-white border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-emerald-700" onfocus="document.getElementById('goal-etc').checked=true">
+                    </div>
+                </div>
+            </div>
+            <button onclick="submitGoal()" class="w-full bg-ewha-green text-white font-bold py-3.5 rounded-xl mt-6 hover:opacity-90 transition">목표 등록 완료</button>
+        </div>
+
+        <div id="page-meal-before" class="page flex flex-col justify-between h-full flex-grow pt-2">
+            <div>
+                <h2 class="text-lg font-bold text-ewha-green mb-1">🍱 식사 전 급식 분석</h2>
+                <p class="text-xs text-gray-400 mb-6">식판에 받아온 배식 상태 그대로 사진을 올려주세요.</p>
+                
+                <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center bg-gray-50/50 mb-4 cursor-pointer hover:bg-gray-100/50 transition" onclick="document.getElementById('file-before').click()">
+                    <span class="text-3xl block mb-2">📸</span>
+                    <span id="txt-file-before" class="text-xs text-gray-500 font-medium block">오늘의 급식 사진 업로드</span>
+                    <input type="file" id="file-before" class="hidden" accept="image/*" onchange="simulateAIAnalysis('before')">
+                </div>
+
+                <div id="loading-before" class="hidden text-center py-4">
+                    <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-emerald-800 mx-auto mb-2"></div>
+                    <p class="text-xs text-emerald-800 font-medium">AI가 급식 칼로리와 영양소를 계산하고 있습니다...</p>
+                </div>
+
+                <div id="result-before" class="hidden bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 space-y-2.5 animate-fadeIn">
+                    <h4 class="font-bold text-ewha-green text-xs flex items-center">🌸 이화인 맞춤 급식 가이드</h4>
+                    <p class="text-[11px] text-gray-500 border-b border-emerald-100 pb-1.5">🎯 목표: <span id="txt-selected-goal" class="font-bold text-gray-700"></span></p>
+                    <div class="text-xs text-gray-600 space-y-1.5 leading-relaxed">
+                        <p><strong>💡 식이섬유 먼저 섭취:</strong><br>샐러드나 나물 반찬을 먼저 드시면 혈당 스파이크를 방지할 수 있어요!</p>
+                        <p><strong>⚖️ 오늘의 섭취량 조절 조언:</strong><br>탄수화물 비율이 다소 높으니, 밥은 평소 배식량의 <span class="text-red-600 font-bold">절반 정도</span> 덜어내고 드시는 것을 추천합니다.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 space-y-2">
+                <button id="btn-go-after" onclick="navigate('page-meal-after')" class="hidden w-full bg-ewha-green text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition">맛있게 먹고 잔반 인증하기</button>
+                <button onclick="navigate('page-main-menu')" class="w-full text-xs text-gray-400 text-center hover:underline">메인으로</button>
+            </div>
+        </div>
+
+        <div id="page-meal-after" class="page flex flex-col justify-between h-full flex-grow pt-2">
+            <div>
+                <h2 class="text-lg font-bold text-ewha-green mb-1">🧼 식사 후 잔반 분석</h2>
+                <p class="text-xs text-gray-400 mb-6">식사를 마친 후 빈 식판(또는 잔반) 사진을 인증해 주세요.</p>
+                
+                <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center bg-gray-50/50 mb-4 cursor-pointer hover:bg-gray-100/50 transition" onclick="document.getElementById('file-after').click()">
+                    <span class="text-3xl block mb-2">📸</span>
+                    <span id="txt-file-after" class="text-xs text-gray-500 font-medium block">다 먹은 식판 사진 업로드</span>
+                    <input type="file" id="file-after" class="hidden" accept="image/*" onchange="simulateAIAnalysis('after')">
+                </div>
+
+                <div id="loading-after" class="hidden text-center py-4">
+                    <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-emerald-800 mx-auto mb-2"></div>
+                    <p class="text-xs text-emerald-800 font-medium">잔반 배출량과 최종 영양 성분을 매칭 중입니다...</p>
+                </div>
+
+                <div id="result-after" class="hidden bg-stone-50 border border-gray-200 rounded-2xl p-4 space-y-2.5">
+                    <h4 class="font-bold text-gray-800 text-xs">📊 최종 영양 분석 리포트</h4>
+                    <div class="text-xs text-gray-600 space-y-1.5 leading-relaxed">
+                        <p>🔥 <strong>실제 추정 섭취량:</strong> 약 510 kcal</p>
+                        <p>🌾 <strong>탄단지 균형도:</strong> 가이드대로 탄수화물 섭취량을 줄여 아주 이상적입니다.</p>
+                        <div class="p-2.5 bg-emerald-50 rounded-xl border border-emerald-100 text-[11px] text-emerald-900 font-medium">
+                            🌿 <strong>잔반 제로 달성!</strong> 음식을 남기지 않아 환경을 지키고 우리 학교 잔반 줄이기 챌린지에도 성공하셨습니다!
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 space-y-2">
+                <button id="btn-finish-meal" onclick="finishMealFlow()" class="hidden w-full bg-ewha-green text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition">기록 완료 및 저장</button>
+                <button onclick="navigate('page-main-menu')" class="w-full text-xs text-gray-400 text-center hover:underline">메인으로</button>
+            </div>
+        </div>
+
+        <div id="page-exercise" class="page flex flex-col justify-between h-full flex-grow pt-2">
+            <div>
+                <h2 class="text-lg font-bold text-ewha-green mb-1">🏋️ 교내 체육관 맞춤 운동 루틴</h2>
+                <div id="exercise-context" class="text-xs bg-stone-50 p-3 rounded-xl text-gray-600 mb-4 border border-gray-100 leading-relaxed"></div>
+
+                <div class="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
+                    
+                    <div class="border border-gray-100 rounded-xl p-3 bg-white shadow-sm">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-xs text-gray-800">🏃‍♀️ 1. 러닝머신</span>
+                            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">25분 유산소</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-2">탄수화물 연소를 돕는 가장 기본적인 유산소 머신</p>
+                        <details class="text-[11px] bg-stone-50 p-2 rounded-lg">
+                            <summary class="cursor-pointer font-bold text-ewha-green focus:outline-none">⚙️ 올바른 이용 가이드</summary>
+                            <p class="mt-1 text-gray-600 leading-relaxed">안전키를 옷에 집은 후 [START] 버튼을 누르세요. 속도(Speed)를 6.0 내외로 두어 빠른 걸음으로 걷다가, 마지막 5분은 8.0 이상으로 뛰며 땀을 내줍니다.</p>
+                        </details>
+                    </div>
+
+                    <div class="border border-gray-100 rounded-xl p-3 bg-white shadow-sm">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-xs text-gray-800">🚴‍♀️ 2. 실내자전거 (사이클머신)</span>
+                            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">15분 하체 자극</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-2">무릎 관절 부담 없이 하체 근력을 키우는 기구</p>
+                        <details class="text-[11px] bg-stone-50 p-2 rounded-lg">
+                            <summary class="cursor-pointer font-bold text-ewha-green focus:outline-none">⚙️ 올바른 이용 가이드</summary>
+                            <p class="mt-1 text-gray-600 leading-relaxed">앉았을 때 다리가 다 펴지지 않고 살짝 굽혀지도록 의자 높이를 먼저 조절하세요. 계기판 강도를 3~4단계로 맞춘 뒤 분당 회전수(RPM) 60 이상을 유지합니다.</p>
+                        </details>
+                    </div>
+
+                    <div class="border border-gray-100 rounded-xl p-3 bg-white shadow-sm">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-xs text-gray-800">🪜 3. 스텝퍼</span>
+                            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">10분 힙업</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-2">계단을 오르는 효과로 둔근(엉덩이)과 하체를 강화</p>
+                        <details class="text-[11px] bg-stone-50 p-2 rounded-lg">
+                            <summary class="cursor-pointer font-bold text-ewha-green focus:outline-none">⚙️ 올바른 이용 가이드</summary>
+                            <p class="mt-1 text-gray-600 leading-relaxed">발판에 발바닥 전체를 밀착시킨 뒤, 상체를 살짝 앞으로 숙여 엉덩이 힘으로 발판을 끝까지 누르듯 밟아줍니다. 발판이 바닥에 쿵쿵 부딪히지 않게 조절하는 것이 핵심!</p>
+                        </details>
+                    </div>
+
+                    <div class="border border-gray-100 rounded-xl p-3 bg-white shadow-sm">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-xs text-gray-800">💪 4. 아령 (덤벨 프리웨이트)</span>
+                            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">15회 × 3세트</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-2">상체 라인을 정리하고 근육 기초 대사량을 높이는 덤벨 운동</p>
+                        <details class="text-[11px] bg-stone-50 p-2 rounded-lg">
+                            <summary class="cursor-pointer font-bold text-ewha-green focus:outline-none">⚙️ 올바른 이용 가이드</summary>
+                            <p class="mt-1 text-gray-600 leading-relaxed">본인에게 알맞은 중량(추천: 1kg ~ 2kg)을 들고 '덤벨 숄더 프레스'(어깨 위로 들어 올리기)나 '덤벨 컬'(이두 접기)을 진행해 거북목과 굽은 등 스트레칭 및 강화를 진행합니다.</p>
+                        </details>
+                    </div>
+
+                    <div class="border border-gray-100 rounded-xl p-3 bg-white shadow-sm">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-xs text-gray-800">🚣‍♀️ 5. 로잉머신</span>
+                            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">10분 전신 유산소</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-2">짧은 시간 안에 전신의 모든 근육을 사용하는 최고의 칼로리 폭탄 기구</p>
+                        <details class="text-[11px] bg-stone-50 p-2 rounded-lg">
+                            <summary class="cursor-pointer font-bold text-ewha-green focus:outline-none">⚙️ 올바른 이용 가이드</summary>
+                            <p class="mt-1 text-gray-600 leading-relaxed">발걸이에 발을 고정한 뒤 손잡이를 잡습니다. 하체 힘으로 먼저 뒤로 밀어내면서, 상체를 살짝 뒤로 젖히며 손잡이를 명치 쪽으로 힘차게 당겨 줍니다. 리듬감이 중요합니다.</p>
+                        </details>
+                    </div>
+
+                </div>
+            </div>
+
+            <button onclick="navigate('page-main-menu')" class="w-full bg-ewha-green text-white font-bold py-3.5 rounded-xl mt-6 hover:opacity-90 transition">메인 메뉴로 돌아가기</button>
+        </div>
+
+        <div id="page-storage" class="page flex flex-col justify-between h-full flex-grow pt-2">
+            <div>
+                <h2 class="text-lg font-bold text-ewha-green mb-1">🗂️ 나의 분석 기록 저장소</h2>
+                <p class="text-xs text-gray-400 mb-4">그동안 저장된 나만의 이화 급식 분석 히스토리입니다.</p>
+                
+                <div class="space-y-2" id="storage-list">
+                    <div class="p-3 border border-gray-100 rounded-xl text-xs bg-stone-50">
+                        <div class="flex justify-between font-bold text-gray-700 mb-1">
+                            <span>📅 이전 기록 (예시 데이터)</span>
+                            <span class="text-emerald-700">저장 완료</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400">목표: 건강 유지 | 추정 칼로리: 520kcal | 잔반 상태: 우수</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="navigate('page-main-menu')" class="w-full bg-ewha-green text-white font-bold py-3.5 rounded-xl mt-6 hover:opacity-90 transition">메인 메뉴로 돌아가기</button>
+        </div>
+
+    </div>
+
+    <script>
+        let appState = {
+            isLoggedIn: false,
+            userId: '',
+            currentGoal: '',
+            hasMealData: false
+        };
+
+        function navigate(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function handleLogin(loginSuccess) {
+            if (loginSuccess) {
+                const idInput = document.getElementById('login-id').value.trim();
+                appState.userId = idInput ? idInput + " 이화인" : "이화인";
+                appState.isLoggedIn = true;
+                document.getElementById('user-status').innerText = `👤 ${appState.userId}`;
+                document.getElementById('btn-my-storage').classList.remove('hidden');
+            } else {
+                appState.userId = "GUEST";
+                appState.isLoggedIn = false;
+                document.getElementById('user-status').innerText = `⚠️ 비로그인 모드`;
+                document.getElementById('btn-my-storage').classList.add('hidden');
+            }
+            navigate('page-main-menu');
+        }
+
+        function goToMealFlow() {
+            document.getElementById('file-before').value = '';
+            document.getElementById('txt-file-before').innerText = "오늘의 급식 사진 업로드";
+            document.getElementById('result-before').classList.add('hidden');
+            document.getElementById('btn-go-after').classList.add('hidden');
+            
+            document.getElementById('file-after').value = '';
+            document.getElementById('txt-file-after').innerText = "다 먹은 식판 사진 업로드";
+            document.getElementById('result-after').classList.add('hidden');
+            document.getElementById('btn-finish-meal').classList.add('hidden');
+
+            navigate('page-goal');
+        }
+
+        function submitGoal() {
+            let selectedGoal = document.querySelector('input[name="goal"]:checked').value;
+            if (selectedGoal === '기타') {
+                const customText = document.getElementById('goal-custom').value.trim();
+                selectedGoal = customText ? `기타: ${customText}` : '나만의 관리 목표';
+            }
+            appState.currentGoal = selectedGoal;
+            document.getElementById('txt-selected-goal').innerText = selectedGoal;
+            navigate('page-meal-before');
+        }
+
+        function simulateAIAnalysis(type) {
+            const fileInput = document.getElementById(`file-${type}`);
+            if (!fileInput.files.length) return;
+
+            document.getElementById(`txt-file-${type}`).innerText = `📄 ${fileInput.files[0].name} 매칭됨`;
+
+            const loadingBox = document.getElementById(`loading-${type}`);
+            const resultBox = document.getElementById(`result-${type}`);
+            
+            loadingBox.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+
+            setTimeout(() => {
+                loadingBox.classList.add('hidden');
+                resultBox.classList.remove('hidden');
+                
+                if (type === 'before') {
+                    document.getElementById('btn-go-after').classList.remove('hidden');
+                } else if (type === 'after') {
+                    document.getElementById('btn-finish-meal').classList.remove('hidden');
+                }
+            }, 1200);
+        }
+
+        function finishMealFlow() {
+            appState.hasMealData = true;
+            if (appState.isLoggedIn) {
+                const now = new Date();
+                const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
+                const storageList = document.getElementById('storage-list');
+                
+                const newItem = document.createElement('div');
+                newItem.className = "p-3 border border-emerald-100 rounded-xl text-xs bg-emerald-50/40";
+                newItem.innerHTML = `
+                    <div class="flex justify-between font-bold text-gray-700 mb-1">
+                        <span>📅 분석 완료 (${timeStr})</span>
+                        <span class="text-ewha-green font-bold">기록됨</span>
+                    </div>
+                    <p class="text-gray-500">목표: ${appState.currentGoal} | 추정 칼로리: 510kcal | 잔반 제로 🌿</p>
+                `;
+                storageList.insertBefore(newItem, storageList.firstChild);
+            }
+            alert("오늘의 급식 영양 피드백이 이화 저장소에 안전하게 기록되었습니다!");
+            navigate('page-main-menu');
+        }
+
+        function goToExerciseFlow() {
+            const contextBox = document.getElementById('exercise-context');
+            
+            if (appState.isLoggedIn) {
+                if (appState.hasMealData) {
+                    contextBox.innerHTML = `🌸 <strong>${appState.userId}</strong>님의 오늘자 급식 분석 데이터와 목표[${appState.currentGoal}]를 바탕으로 조정한 이화여고 체력단련실 루틴입니다.`;
+                } else {
+                    contextBox.innerHTML = `🌸 <strong>${appState.userId}</strong>님의 목표[${appState.currentGoal}]에 맞춘 이화여고 체력단련실 기초 기구 루틴입니다. 식단 분석을 먼저 하시면 정밀 추천이 가능해요!`;
+                }
+                navigate('page-exercise');
+            } else {
+                alert("비로그인 상태이므로, 체육관 기구 추천을 위한 간단한 목표 설정을 진행합니다.");
+                const button = document.querySelector('#page-goal button');
+                button.setAttribute('onclick', 'submitGoalForGuest()');
+                navigate('page-goal');
+            }
+        }
+
+        function submitGoalForGuest() {
+            let selectedGoal = document.querySelector('input[name="goal"]:checked').value;
+            appState.currentGoal = selectedGoal;
+            
+            const contextBox = document.getElementById('exercise-context');
+            contextBox.innerHTML = `💡 비로그인 이화인을 위한 목표 [${appState.currentGoal}] 맞춤 교내 체육관 가이드입니다.`;
+            
+            document.querySelector('#page-goal button').setAttribute('onclick', 'submitGoal()');
+            navigate('page-exercise');
+        }
+
+        function viewStorage() {
+            navigate('page-storage');
+        }
+    </script>
+</body>
+</html>
